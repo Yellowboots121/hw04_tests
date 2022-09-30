@@ -1,4 +1,3 @@
-from posts.forms import PostForm
 from posts.models import Post, Group
 from django.test import Client, TestCase
 from django.urls import reverse
@@ -26,8 +25,6 @@ class TestCreateForm(TestCase):
 
         cls.author = User.objects.create_user(
             username='authorPosts')
-        # Создаем форму, если нужна проверка атрибутов
-        cls.form = PostForm()
 
     def setUp(self):
         self.guest_client = Client()
@@ -56,9 +53,10 @@ class TestCreateForm(TestCase):
 
     def test_form_edit(self):
         """Проверка редактирования поста через форму на странице"""
+        post_count = Post.objects.count()
         form_data = {
             'group': self.group.id,
-            'text': 'Обновленный текст',
+            'text': self.post.id,
         }
         response = self.authorized_author.post(reverse(
             'posts:post_edit',
@@ -67,5 +65,6 @@ class TestCreateForm(TestCase):
             follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(Post.objects.filter(
-            text='Обновленный текст',
+            text=self.post.id,
             group=TestCreateForm.group).exists())
+        self.assertEqual(Post.objects.count(), post_count)

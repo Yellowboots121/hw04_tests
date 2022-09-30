@@ -14,7 +14,7 @@ class TaskURLTests(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.author = User.objects.create_user(username='test_user')
-        cls.no_author = User.objects.create_user(username='no_author')
+        cls.not_author = User.objects.create_user(username='no_author')
         cls.group = Group.objects.create(
             title='Тестовый заголовок группы',
             slug='test_slug',
@@ -24,8 +24,8 @@ class TaskURLTests(TestCase):
             group=cls.group,
             text='Тестовый текст нвого поста',
         )
-        cls.authorized_client_1 = Client()
-        cls.authorized_client_1.force_login(cls.no_author)
+        cls.authorized_client_not_author = Client()
+        cls.authorized_client_not_author.force_login(cls.not_author)
 
     def setUp(self):
         # Создаем неавторизованный клиент
@@ -75,7 +75,8 @@ class TaskURLTests(TestCase):
     def test_no_author_of_post_cant_edit_post(self):
         """Страница posts/<post_id>/edit/ не доступна
          авторизованному пользователю, но не автору поста"""
-        response = self.authorized_client_1.get(f'/posts/{self.post.pk}/edit/')
+        response = self.authorized_client_not_author.get(
+            f'/posts/{self.post.pk}/edit/')
         self.assertRedirects(response, f'/posts/{self.post.pk}/')
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
 

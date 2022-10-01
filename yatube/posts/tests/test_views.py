@@ -94,8 +94,6 @@ class PostTests(TestCase):
 
     def test_post_edit_show_correct_context(self):
         """Шаблон post_edit сформирован с правильным контекстом."""
-        self.authorized_author = Client()
-        self.authorized_author.force_login(self.post.author)
         response = self.authorized_author.get(
             reverse('posts:post_edit', kwargs={'post_id': self.post.pk}))
         form_fields = {
@@ -116,10 +114,10 @@ class PostTests(TestCase):
                 title='Заголовок для 2 тестовой группы',
                 slug='test_slug2'))
         response = self.authorized_client.get(
-            reverse('posts:group_list', kwargs={'slug': 'test_slug'}))
+            reverse('posts:group_list', kwargs={'slug': 'test_slug2'}))
         first_object = response.context['page_obj'][0]
         post_text_0 = first_object.text
-        self.assertTrue(post_text_0, 'Тестовая запись 2')
+        self.assertEqual(post_text_0, 'Тестовая запись 2')
 
 
 class PaginatorViewsTest(TestCase):
@@ -146,7 +144,7 @@ class PaginatorViewsTest(TestCase):
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
 
-    def test_first_page_contains_ten_posts(self):
+    def test_first_page_containsposts(self):
         list_urls = {
             reverse('posts:index'): 'index',
             reverse('posts:group_list', kwargs={"slug": "test_slug"}): 'group',
@@ -158,7 +156,7 @@ class PaginatorViewsTest(TestCase):
             self.assertEqual(len(response.context.get('page_obj').object_list),
                              settings.POSTS_PER_PAGE)
 
-    def test_second_page_contains_three_posts(self):
+    def test_second_page_contains_posts(self):
         list_urls = {
             reverse('posts:index') + "?page=2": 'index',
             reverse('posts:group_list',

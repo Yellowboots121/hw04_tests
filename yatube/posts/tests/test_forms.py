@@ -56,7 +56,7 @@ class TestCreateForm(TestCase):
         post_count = Post.objects.count()
         form_data = {
             'group': self.group.id,
-            'text': self.post.id,
+            'text': 'Измененный текст',
         }
         response = self.authorized_author.post(reverse(
             'posts:post_edit',
@@ -65,6 +65,9 @@ class TestCreateForm(TestCase):
             follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(Post.objects.filter(
-            text=self.post.id,
+            text='Измененный текст',
             group=TestCreateForm.group).exists())
         self.assertEqual(Post.objects.count(), post_count)
+        # Надеюсь что так, а то у от этих тестов голова скоро взорветься
+        post = Post.objects.get(id=self.post.pk)
+        self.assertEqual(post.text, 'Измененный текст')
